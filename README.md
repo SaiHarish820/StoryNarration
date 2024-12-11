@@ -50,7 +50,3 @@ The game is currently under development, and many core systems are in place, inc
 - **Asset Creation**: Blender (for 3D modeling), Photoshop (for UI/Textures)
 - **Audio**: FMOD for background music and sound effects
 - **Version Control**: GitHub for code and asset management
-
----
-
-This version reflects the new focus on the **Story Scene Builder** and **Miracle Finder: Object Identify Game** as part of your development process.
