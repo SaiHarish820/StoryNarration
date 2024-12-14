@@ -9,6 +9,8 @@ public class LevelManager : MonoBehaviour
     {
         public Button levelButton; // The button for the level
         public GameObject levelCard; // The corresponding level card popup
+        public Button nextButton; // Button to navigate to the next level
+        public Button previousButton; // Button to navigate to the previous level
     }
 
     public LevelData[] levels; // Array to hold all levels
@@ -17,181 +19,218 @@ public class LevelManager : MonoBehaviour
     public GameObject settingsPanel; // Settings popup panel
     public float animationDuration = 0.5f; // Duration for animations
     public Image backgroundImage; // Reference to the background image
+    public GameObject closeArea; // Transparent area for closing level cards
+    public GameObject informationPanel; // Information panel reference
+    public Button informationButton; // Information button reference
+
+    public AudioSource sfxAudioSource; // Audio source for playing SFX
+    public AudioClip buttonClickSFX; // SFX for button clicks
+    public AudioClip navigateSFX; // SFX for navigating levels
+    public AudioClip closePanelSFX; // SFX for closing panels
+
+    private int currentLevelIndex = -1; // Tracks the currently active level
+
+    private static bool isAudioSourceInitialized = false; // To prevent duplicate audio sources
+
+    private void Awake()
+    {
+        // Ensure the AudioSource persists across scenes
+        if (!isAudioSourceInitialized && sfxAudioSource != null)
+        {
+            DontDestroyOnLoad(sfxAudioSource.gameObject);
+            isAudioSourceInitialized = true;
+        }
+    }
 
     private void Start()
     {
-        // Initialize level buttons to open respective popups
-        foreach (var level in levels)
-        {
-            level.levelCard.SetActive(false); // Ensure all level cards are hidden initially
-            level.levelButton.onClick.AddListener(() => OpenLevelCard(level));
-        }
-
-        // Initialize Homepage and Settings buttons
-        if (homepageButton != null)
-        {
-            homepageButton.onClick.AddListener(OpenHomepage);
-        }
-        if (settingsButton != null && settingsPanel != null)
-        {
-            settingsPanel.SetActive(false); // Ensure the settings panel is hidden initially
-            settingsButton.onClick.AddListener(OpenSettingsPanel);
-        }
+        InitializeLevelButtons();
+        InitializeGlobalButtons();
+        InitializeCloseArea();
+        InitializeInformationButton(); // Initialize the button
     }
 
-    private void OpenLevelCard(LevelData selectedLevel)
+    private void InitializeInformationButton()
     {
-        // Dim the background when a level card is opened
-        DimBackground(true);
-
-        // Animate the level button to scale larger
-        AnimateButtonScale(selectedLevel.levelButton);
-
-        // Animate the level card opening
-        AnimateOpen(selectedLevel.levelCard);
-
-        // Disable all buttons except the active level's button
-        foreach (var level in levels)
+        informationPanel.SetActive(false);
+        if (informationButton != null && informationPanel != null)
         {
-            level.levelButton.interactable = (level == selectedLevel);
-        }
-
-        // Disable Homepage and Settings buttons
-        SetGlobalButtonsState(false);
-
-        // Add close button logic for the active level card
-        var closeButton = selectedLevel.levelCard.GetComponentInChildren<Button>();
-        if (closeButton != null)
-        {
-            closeButton.onClick.RemoveAllListeners(); // Avoid stacking listeners
-            closeButton.onClick.AddListener(() => CloseLevelCard(selectedLevel, closeButton));
-        }
-        else
-        {
-            Debug.LogError("Close button not found on level card!");
-        }
-    }
-
-    private void CloseLevelCard(LevelData selectedLevel, Button closeButton)
-    {
-        // Dim the background back to normal
-        DimBackground(false);
-
-        // Animate the level button to scale down with easeOut
-        AnimateButtonScaleDown(selectedLevel.levelButton);
-
-        // Animate the close button scaling down (optional for more effect)
-        AnimateButtonScaleDown(closeButton);
-
-        // Animate the level card closing
-        AnimateClose(selectedLevel.levelCard, () =>
-        {
-            // Enable all level buttons
-            foreach (var level in levels)
+            informationButton.onClick.AddListener(() =>
             {
-                level.levelButton.interactable = true;
-            }
-
-            // Re-enable Homepage and Settings buttons
-            SetGlobalButtonsState(true);
-        });
-    }
-
-    private void AnimateButtonScale(Button button)
-    {
-        // Animate the button to scale larger
-        RectTransform rect = button.GetComponent<RectTransform>();
-        if (rect != null)
-        {
-            LeanTween.scale(rect, Vector3.one * 1.2f, animationDuration / .5f) // Scale up
-                     .setEase(LeanTweenType.easeOutBack);
+                PlaySFX(buttonClickSFX);
+                OpenInformationPanel();
+            });
         }
     }
 
-    private void AnimateButtonScaleDown(Button button)
+    private void OpenInformationPanel()
     {
-        RectTransform rect = button.GetComponent<RectTransform>();
-        if (rect != null)
-        {
-            LeanTween.scale(rect, Vector3.one, animationDuration / 1.5f) // Scale down to normal size
-                     .setEase(LeanTweenType.easeOutBack);  // Use easeOut for smooth animation
-        }
-    }
-
-    private void OpenSettingsPanel()
-    {
-        // Dim the background when settings panel is opened
         DimBackground(true);
+        AnimateOpen(informationPanel);
 
-        // Animate the settings panel opening
-        AnimateOpen(settingsPanel);
+        if (closeArea != null)
+        {
+            closeArea.SetActive(true);
+            closeArea.GetComponent<Button>().onClick.AddListener(CloseInformationPanel);
+        }
 
-        // Disable all level buttons
         foreach (var level in levels)
         {
             level.levelButton.interactable = false;
         }
 
-        // Disable Homepage button
         SetGlobalButtonsState(false);
-
-        // Add close button logic for the settings panel
-        var closeButton = settingsPanel.GetComponentInChildren<Button>();
-        if (closeButton != null)
-        {
-            closeButton.onClick.RemoveAllListeners(); // Avoid stacking listeners
-            closeButton.onClick.AddListener(CloseSettingsPanel);
-        }
-        else
-        {
-            Debug.LogError("Close button not found on settings panel!");
-        }
     }
 
-    private void CloseSettingsPanel()
+    private void CloseInformationPanel()
     {
-        // Dim the background back to normal
         DimBackground(false);
-
-        // Animate the settings panel closing
-        AnimateClose(settingsPanel, () =>
+        AnimateClose(informationPanel, () =>
         {
-            // Re-enable all level buttons
+            informationPanel.SetActive(false);
+            if (closeArea != null)
+            {
+                closeArea.SetActive(false);
+                closeArea.GetComponent<Button>().onClick.RemoveListener(CloseInformationPanel);
+            }
+
             foreach (var level in levels)
             {
                 level.levelButton.interactable = true;
             }
 
-            // Re-enable Homepage button
             SetGlobalButtonsState(true);
         });
     }
 
-    private void SetGlobalButtonsState(bool state)
+    private void InitializeLevelButtons()
     {
-        if (homepageButton != null) homepageButton.interactable = state;
-        if (settingsButton != null) settingsButton.interactable = state;
+        for (int i = 0; i < levels.Length; i++)
+        {
+            var levelIndex = i; // Capture index for lambda expression
+            levels[i].levelCard.SetActive(false); // Ensure all level cards are hidden initially
+            levels[i].levelButton.onClick.AddListener(() =>
+            {
+                PlaySFX(buttonClickSFX);
+                OpenLevelCard(levelIndex);
+            });
+
+            if (levels[i].nextButton != null)
+            {
+                levels[i].nextButton.onClick.AddListener(() =>
+                {
+                    PlaySFX(navigateSFX);
+                    NavigateToNextLevel(levelIndex);
+                });
+            }
+
+            if (levels[i].previousButton != null)
+            {
+                levels[i].previousButton.onClick.AddListener(() =>
+                {
+                    PlaySFX(navigateSFX);
+                    NavigateToPreviousLevel(levelIndex);
+                });
+            }
+        }
     }
 
-    private void OpenHomepage()
+    private void InitializeGlobalButtons()
     {
-        Debug.Log("Navigating to the Homepage (Scene Index 0).");
-        SceneManager.LoadScene(0); // Change to the scene at index 0
+        if (homepageButton != null)
+        {
+            homepageButton.onClick.AddListener(() =>
+            {
+                PlaySFX(buttonClickSFX);
+                OpenHomepage();
+            });
+        }
+
+        if (settingsButton != null && settingsPanel != null)
+        {
+            settingsPanel.SetActive(false); // Ensure the settings panel is hidden initially
+            settingsButton.onClick.AddListener(() =>
+            {
+                PlaySFX(buttonClickSFX);
+                OpenSettingsPanel();
+            });
+        }
+
+        if (informationButton!= null && informationPanel != null)
+        {
+            informationPanel.SetActive(false); // Ensure the information panel is hidden initially
+            informationButton.onClick.AddListener(() =>
+            {
+                PlaySFX(buttonClickSFX);
+                OpenInformationPanel();
+            });
+        }
     }
 
-    // Animation for opening panels/cards
+    private void InitializeCloseArea()
+    {
+        if (closeArea != null)
+        {
+            closeArea.SetActive(false); // Hidden initially
+            closeArea.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                PlaySFX(closePanelSFX);
+                CloseLevelCard();
+            });
+        }
+    }
+
+    private void OpenLevelCard(int levelIndex)
+    {
+        if (currentLevelIndex != -1)
+        {
+            levels[currentLevelIndex].levelCard.SetActive(false);
+        }
+
+        currentLevelIndex = levelIndex;
+        DimBackground(true);
+        AnimateOpen(levels[levelIndex].levelCard);
+
+        if (closeArea != null) closeArea.SetActive(true);
+        SetGlobalButtonsState(false);
+    }
+
+    private void NavigateToNextLevel(int currentLevelIndex)
+    {
+        int nextLevelIndex = (currentLevelIndex + 1) % levels.Length;
+        OpenLevelCard(nextLevelIndex);
+    }
+
+    private void NavigateToPreviousLevel(int currentLevelIndex)
+    {
+        int previousLevelIndex = (currentLevelIndex - 1 + levels.Length) % levels.Length;
+        OpenLevelCard(previousLevelIndex);
+    }
+
+    public void CloseLevelCard()
+    {
+        if (currentLevelIndex != -1)
+        {
+            DimBackground(false);
+            AnimateClose(levels[currentLevelIndex].levelCard, null);
+
+            currentLevelIndex = -1;
+            if (closeArea != null) closeArea.SetActive(false);
+            SetGlobalButtonsState(true);
+        }
+    }
+
     private void AnimateOpen(GameObject panel)
     {
         panel.SetActive(true);
         RectTransform rect = panel.GetComponent<RectTransform>();
         if (rect != null)
         {
-            rect.localScale = Vector3.zero; // Start from a scale of 0
+            rect.localScale = Vector3.zero;
             LeanTween.scale(rect, Vector3.one, animationDuration).setEase(LeanTweenType.easeOutBack);
         }
     }
 
-    // Animation for closing panels/cards
     private void AnimateClose(GameObject panel, System.Action onComplete)
     {
         RectTransform rect = panel.GetComponent<RectTransform>();
@@ -201,25 +240,85 @@ public class LevelManager : MonoBehaviour
                 .setEase(LeanTweenType.easeInBack)
                 .setOnComplete(() =>
                 {
-                    panel.SetActive(false); // Hide the panel after animation
-                    onComplete?.Invoke(); // Execute the callback
+                    panel.SetActive(false);
+                    onComplete?.Invoke();
                 });
         }
         else
         {
-            panel.SetActive(false); // Fallback if no RectTransform is found
+            panel.SetActive(false);
             onComplete?.Invoke();
         }
     }
 
-    // Method to dim or restore the background image
     private void DimBackground(bool dim)
     {
         if (backgroundImage != null)
         {
             Color color = backgroundImage.color;
-            color.a = dim ? 0.5f : 1f; // Dim to 50% opacity or restore to full opacity
+            color.a = dim ? 0.5f : 1f;
             backgroundImage.color = color;
+        }
+    }
+
+    private void OpenSettingsPanel()
+    {
+        DimBackground(true);
+        AnimateOpen(settingsPanel);
+
+        if (closeArea != null)
+        {
+            closeArea.SetActive(true);
+            closeArea.GetComponent<Button>().onClick.AddListener(CloseSettingsPanel);
+        }
+
+        foreach (var level in levels)
+        {
+            level.levelButton.interactable = false;
+        }
+
+        SetGlobalButtonsState(false);
+    }
+
+    private void CloseSettingsPanel()
+    {
+        DimBackground(false);
+        AnimateClose(settingsPanel, () =>
+        {
+            settingsPanel.SetActive(false);
+            if (closeArea != null)
+            {
+                closeArea.SetActive(false);
+                closeArea.GetComponent<Button>().onClick.RemoveListener(CloseSettingsPanel);
+            }
+
+            foreach (var level in levels)
+            {
+                level.levelButton.interactable = true;
+            }
+
+            SetGlobalButtonsState(true);
+        });
+    }
+
+    private void SetGlobalButtonsState(bool state)
+    {
+        if (homepageButton != null) homepageButton.interactable = state;
+        if (settingsButton != null) settingsButton.interactable = state;
+        if(informationButton != null) informationButton.interactable = state;
+    }
+
+    private void OpenHomepage()
+    {
+        PlaySFX(buttonClickSFX);
+        SceneManager.LoadScene(0);
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (sfxAudioSource != null && clip != null)
+        {
+            sfxAudioSource.PlayOneShot(clip);
         }
     }
 }
