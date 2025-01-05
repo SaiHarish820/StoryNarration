@@ -4,43 +4,27 @@ using UnityEngine.UI;
 
 public class DropSlot : MonoBehaviour, IDropHandler
 {
-     /*public GameObject item
-     {
-         get
-         {
-             if (transform.childCount > 0)
-             {
-                 return transform.GetChild(0).gameObject;
-             }
-             return null;
-         }
-     }
 
-     public void OnDrop(PointerEventData eventData)
-     {
-         Debug.Log("OnDrop triggered");
-         if (!item)
-         {
-             DragHandler draggedItem = eventData.pointerDrag.GetComponent<DragHandler>();
-             if (draggedItem)
-             {
-                 Debug.Log("Item Dropped on Slot: " + gameObject.name);
-                 draggedItem.originalParent = transform; // Set the slot as the new parent
-             }
-             else
-             {
-                 Debug.Log("Dragged item does not have a DragHandler component");
-             }
-         }
-         else
-         {
-             Debug.Log("Drop slot already has an item");
-         }
-     }*/
+    private bool isSlotFull; // Tracks if the slot has an item
+
+    void Update()
+    {
+        // Initialize slot as not full
+        isSlotFull = transform.childCount > 0;
+    }
+
+
     public void OnDrop(PointerEventData eventData)
     {
         if (eventData.pointerDrag != null && eventData.pointerDrag != gameObject)
         {
+
+            if (isSlotFull)
+            {
+                Debug.Log("DropSlot is already full. Cannot drop another item.");
+                return; // Slot is full, exit method
+            }
+
             // Handle the drop only if the dragged object is different from the drop target
             RectTransform droppedItem = eventData.pointerDrag.GetComponent<RectTransform>();
             droppedItem.SetParent(transform, false); // Adjust parent if necessary
@@ -48,8 +32,10 @@ public class DropSlot : MonoBehaviour, IDropHandler
             DragHandler draggedItem = eventData.pointerDrag.GetComponent<DragHandler>();
             if (draggedItem)
             {
+                // Mark the slot as full
+                isSlotFull = true;
                 Debug.Log("Item Dropped on Slot: " + gameObject.name);
-                draggedItem.originalParent = transform;// Set the slot as the new parent
+                draggedItem.parentAfterDrag = transform;// Set the slot as the new parent
 
                 // Assuming 'draggedItem' has a RectTransform component
                 RectTransform rectTransform = draggedItem.GetComponent<RectTransform>();

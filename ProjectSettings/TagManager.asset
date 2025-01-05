@@ -44,3 +44,9 @@ TagManager:
   - name: UI
     uniqueID: 2503477625
     locked: 0
+  - name: Contents
+    uniqueID: 1470942431
+    locked: 0
+  - name: ContentsSot
+    uniqueID: 1369963187
+    locked: 0
