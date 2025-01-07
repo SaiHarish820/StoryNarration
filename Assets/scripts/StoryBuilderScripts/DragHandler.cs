@@ -1,67 +1,107 @@
 using System;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler
 {
     [HideInInspector] public Transform parentAfterDrag;
-   // private Transform originalPosition;
-    public Transform originalPosition;
-
     private CanvasGroup canvasGroup;
     private RectTransform rectTransform;
-    public Transform originalParent; // To hold the original parent of the GameObject
+
+    [SerializeField] private Transform originalParent; // Parent before drag starts
+    private Transform originalPosition; // Position holder for reverting
+    private Quaternion originalRotation; // Store original rotation
 
     [SerializeField] private Canvas canvas;
-    private RectTransform boundaryRectTransform;
-    private Transform contentsTransform;
     public float snapDistance = 50f;
     private Vector2 originalSizeDelta;
 
+    private bool isDraggable = true;
+    private bool isLongPress = false;
+    private float longPressThreshold = 3f; // Time in seconds
+    private float pressStartTime;
 
-    private void Start()
-    {
-        Debug.Log(originalPosition);
-    }
-
-
-
+    private DropSlot dropSlot;
 
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-        canvasGroup = GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
-        {
-            canvasGroup = gameObject.AddComponent<CanvasGroup>();
-        }
-        boundaryRectTransform = GameObject.Find("Content Slot").GetComponent<RectTransform>();
-        contentsTransform = GameObject.Find("Contents").transform;
+        canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
         originalSizeDelta = rectTransform.sizeDelta;
+
+        originalRotation = rectTransform.localRotation; // Store the initial rotation
+
+        // Attempt to find DropSlot on this object
+        dropSlot = GetComponent<DropSlot>();
+
+        // Dynamically assign originalPosition based on naming convention
+        string positionHolderName = $"{name}P"; // Example: "1" -> "1P"
+        GameObject positionHolder = GameObject.Find(positionHolderName);
+
+        if (positionHolder != null)
+        {
+            originalPosition = positionHolder.transform;
+        }
+        else
+        {
+            Debug.LogError($"Original Position GameObject '{positionHolderName}' not found for {gameObject.name}");
+        }
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (!isDraggable) return;
+
+        pressStartTime = Time.time;
+
+        if (dropSlot != null && dropSlot.isSlotFull)
+        {
+            Debug.Log("Pointer down on a full DropSlot");
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (!isDraggable) return;
+
+        // Check if the DropSlot is full before allowing a long press drag
+        if (dropSlot != null && dropSlot.isSlotFull)
+        {
+            // Detect long press only for filled slots
+            isLongPress = Time.time - pressStartTime >= longPressThreshold;
+
+            if (!isLongPress)
+            {
+                Debug.Log("Long press not detected; drag not allowed for filled slot.");
+                return; // Exit if the long press condition is not met
+            }
+
+            Debug.Log("Long Press detected for a full DropSlot; starting drag.");
+        }
+
+        // Enable dragging
         canvasGroup.alpha = 0.6f;
         canvasGroup.blocksRaycasts = false;
-        parentAfterDrag = transform.parent;
-        transform.SetParent(canvas.transform);  // Ensure it's on top of other UI elements
-        Debug.Log("Start Drag");
+        transform.SetParent(canvas.transform); // Move to top canvas layer
+
+        Debug.Log(isLongPress ? "Long Press detected, starting drag." : "Normal drag started.");
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+
         DropSlot closestSlot = FindClosestDropSlot();
         if (closestSlot && Vector3.Distance(transform.position, closestSlot.transform.position) <= snapDistance)
         {
             rectTransform.sizeDelta = closestSlot.GetComponent<RectTransform>().sizeDelta;
+            rectTransform.localRotation = Quaternion.identity; // Reset rotation
         }
         else
         {
             rectTransform.sizeDelta = originalSizeDelta;
+            rectTransform.localRotation = originalRotation; // Restore original rotation
         }
         Debug.Log("Dragging");
     }
@@ -71,30 +111,34 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         canvasGroup.alpha = 1.0f;
         canvasGroup.blocksRaycasts = true;
 
-
         DropSlot closestSlot = FindClosestDropSlot();
         if (closestSlot != null && Vector3.Distance(transform.position, closestSlot.transform.position) <= snapDistance && !closestSlot.isSlotFull)
         {
+            // Snap to the closest valid slot
             transform.SetParent(closestSlot.transform, false);
-            rectTransform.anchoredPosition = Vector2.zero; // Center in slot
-            Debug.Log("Dropped within bounds and resized to match DropSlot.");
-            closestSlot.isSlotFull = true; // Mark slot as full
+            rectTransform.anchoredPosition = Vector2.zero;
+            rectTransform.localRotation = Quaternion.identity; // Reset rotation
+            closestSlot.isSlotFull = true;
+            Debug.Log($"Dropped into slot: {closestSlot.name}");
         }
         else
         {
-            // Revert to the original position and parent if drop is not valid
-            transform.SetParent(originalParent);
-            transform.position = originalPosition.position;
-            Debug.Log(originalPosition);
-            rectTransform.sizeDelta = originalSizeDelta; // Retain it's Original Size
-            Debug.Log("Not in Boundary or too far from any DropSlot, or DropSlot is full, reset to original position");
+            // Revert to the original parent and position
+            transform.SetParent(originalParent); // Restore original parent
+            Debug.Log($"Reverting to original parent: {originalParent.name}");
+
+            if (originalPosition != null)
+            {
+                transform.position = originalPosition.position; // Restore original position
+                
+            }
+            rectTransform.sizeDelta = originalSizeDelta; // Restore original size
+            
+            Debug.Log($"Reverted to original position: {originalPosition?.position}");
         }
+
+        isLongPress = false; // Reset state
     }
-
-   
-    
-
-    
 
     private DropSlot FindClosestDropSlot()
     {

@@ -275,7 +275,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentAfterDrag: {fileID: 0}
-  originalPosition: {fileID: 1331571654}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
   snapDistance: 50
@@ -551,7 +550,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentAfterDrag: {fileID: 0}
-  originalPosition: {fileID: 590628657}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
   snapDistance: 50
@@ -657,7 +655,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentAfterDrag: {fileID: 0}
-  originalPosition: {fileID: 236639636}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
   snapDistance: 50
@@ -1132,7 +1129,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentAfterDrag: {fileID: 0}
-  originalPosition: {fileID: 1413336452}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
   snapDistance: 50
@@ -1238,7 +1234,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentAfterDrag: {fileID: 0}
-  originalPosition: {fileID: 807720855}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
   snapDistance: 50
@@ -1375,13 +1370,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 939569906}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: 0.32793644, w: 0.9446999}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2047909884}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 38.287}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 514, y: 154}
@@ -1450,7 +1445,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentAfterDrag: {fileID: 0}
-  originalPosition: {fileID: 795868882}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
   snapDistance: 50
@@ -1554,7 +1548,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0.9166093, a: 0.57254905}
+  m_Color: {r: 0.035848916, g: 0.8385916, b: 1, a: 0.5019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1643,7 +1637,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentAfterDrag: {fileID: 0}
-  originalPosition: {fileID: 824712038}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
   snapDistance: 50
@@ -2501,7 +2494,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentAfterDrag: {fileID: 0}
-  originalPosition: {fileID: 2025044068}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
   snapDistance: 50
