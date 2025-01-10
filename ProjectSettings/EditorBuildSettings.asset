@@ -5,10 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/HomePage.unity
     guid: 89c9bde63fefbbb4884aa97597d1c20f
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Level Page.unity
     guid: 958367a4a0960eb47a51659082d275b1
+  - enabled: 1
+    path: Assets/Scenes/StoryBulider.unity
+    guid: f2882cf14cd247b4ea55b8e9b407ce69
   m_configObjects: {}
