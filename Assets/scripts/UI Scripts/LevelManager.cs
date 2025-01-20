@@ -11,6 +11,8 @@ public class LevelManager : MonoBehaviour
         public GameObject levelCard; // The corresponding level card popup
         public Button nextButton; // Button to navigate to the next level
         public Button previousButton; // Button to navigate to the previous level
+        public Button gameButton; // Button to start the game
+        public string sceneName; // Scene to load when this game button is pressed
     }
 
     public LevelData[] levels; // Array to hold all levels
@@ -121,6 +123,17 @@ public class LevelManager : MonoBehaviour
                 {
                     PlaySFX(navigateSFX);
                     NavigateToNextLevel(levelIndex);
+                });
+            }
+
+
+            // Configure the game button to load the scene
+            if (levels[i].gameButton != null)
+            {
+                levels[i].gameButton.onClick.AddListener(() =>
+                {
+                    PlaySFX(buttonClickSFX);
+                    LoadScene(levels[levelIndex].sceneName);
                 });
             }
 
@@ -321,4 +334,17 @@ public class LevelManager : MonoBehaviour
             sfxAudioSource.PlayOneShot(clip);
         }
     }
+
+    private void LoadScene(string sceneName)
+    {
+        if (!string.IsNullOrEmpty(sceneName))
+        {
+            SceneManager.LoadScene(sceneName);
+        }
+        else
+        {
+            Debug.LogWarning("Scene name is not set for the game button.");
+        }
+    }
+
 }

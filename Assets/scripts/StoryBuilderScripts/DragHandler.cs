@@ -18,6 +18,12 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public bool dragEnabled = true; // Flag to enable or disable drag functionality
 
+    // Audio variables
+    [Header("Audio Settings")]
+    [SerializeField] private AudioSource audioSource; // Reference to the AudioSource component
+    [SerializeField] private AudioClip snapClip; // Sound when snapped into a valid slot
+    [SerializeField] private AudioClip revertClip; // Sound when reverted to the original position
+
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -35,15 +41,23 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         {
             Debug.LogError($"Original Position GameObject '{positionHolderName}' not found for {gameObject.name}");
         }
+
+        // Validate AudioSource setup
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (!dragEnabled) return;
 
-        canvasGroup.alpha = 0.6f;
         canvasGroup.blocksRaycasts = false;
         transform.SetParent(canvas.transform); // Move to top canvas layer
+
+        // Play the drag start sound
+ 
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -60,6 +74,8 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
         canvasGroup.alpha = 1.0f;
         canvasGroup.blocksRaycasts = true;
+
+        // Finish the drag and check if snapped or reverted
         FinishDrag();
     }
 
@@ -74,7 +90,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         else
         {
             rectTransform.sizeDelta = originalSizeDelta;
-            rectTransform.localRotation = originalRotation;
+            rectTransform.localRotation = Quaternion.identity;
         }
     }
 
@@ -86,16 +102,26 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             transform.SetParent(closestSlot.transform, false);
             rectTransform.anchoredPosition = Vector2.zero;
             rectTransform.localRotation = Quaternion.identity;
+
+            // Play the snap sound
+            PlaySound(snapClip);
         }
         else
         {
+            // Revert to the original position if no valid slot was found
             transform.SetParent(originalParent);
             if (originalPosition != null)
             {
                 transform.position = originalPosition.position;
             }
             rectTransform.sizeDelta = originalSizeDelta;
+            rectTransform.localRotation = originalRotation;
+
+            // Play the revert sound
+            PlaySound(revertClip);
         }
+
+      
     }
 
     DropSlot FindClosestDropSlot()
@@ -121,5 +147,15 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             }
         }
         return closestSlot;
+    }
+
+    /// <summary>
+    /// Plays a sound effect using the AudioSource.
+    /// </summary>
+    /// <param name="clip">The audio clip to play.</param>
+    private void PlaySound(AudioClip clip)
+    {
+        if (clip == null || audioSource == null) return; // Don't play if clip or AudioSource is missing
+        audioSource.PlayOneShot(clip);
     }
 }

@@ -12,7 +12,7 @@ public class DropSlot : MonoBehaviour
     void Update()
     {
         // Update the slot full status based on child count
-        isSlotFull = transform.childCount > 0;
+        isSlotFull = transform.childCount > 2;
     }
 
    

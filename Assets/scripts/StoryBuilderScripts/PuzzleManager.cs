@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class PuzzleManager : MonoBehaviour
 {
@@ -10,12 +11,18 @@ public class PuzzleManager : MonoBehaviour
     public Vector2[] originalSizeDeltas; // Array to store original sizeDeltas (added for maintaining size)
     public Quaternion[] originalRotation; // Array to store original Rotation (added for maintaining rotation)
     public Transform originalParent; // Reference to the original parent for all pieces
+    public GameObject congratulationsPanel; // Reference to the GameObject with the Text UI "Congratulations"
+
+    public bool isShowingCongratulations = false; // Flag to prevent multiple animations
+    
+
 
     void Start()
     {
         originalPositions = new Vector3[puzzlePieces.Length];
         originalSizeDeltas = new Vector2[puzzlePieces.Length];
         originalRotation = new Quaternion[puzzlePieces.Length]; // Initialize the rotation array
+        congratulationsPanel.SetActive(false);
 
         for (int i = 0; i < puzzlePieces.Length; i++)
         {
@@ -28,17 +35,19 @@ public class PuzzleManager : MonoBehaviour
 
     void Update()
     {
-        if (AllDropSlotsFilled())
+        if (isShowingCongratulations == false && AllDropSlotsFilled())
         {
             CheckPuzzleCompletion();
+            Debug.Log("Checking Puzzle");
         }
     }
+
 
     private bool AllDropSlotsFilled()
     {
         foreach (GameObject slot in dropSlots)
         {
-            if (slot.transform.childCount == 0)
+            if (slot.transform.childCount == 1)
             {
                 return false; // At least one slot is empty
             }
@@ -67,8 +76,28 @@ public class PuzzleManager : MonoBehaviour
         if (allCorrect)
         {
             Debug.Log("Congratulations! Puzzle completed successfully.");
+            ShowCongratulationsMessage();
         }
     }
+
+    void ShowCongratulationsMessage()
+    {
+        if (!isShowingCongratulations)
+        {
+            isShowingCongratulations = true;
+            congratulationsPanel.SetActive(true);
+           /* LeanTween.cancel(congratulationsPanel); // Cancel any existing animations
+            LeanTween.scale(congratulationsPanel, new Vector3(1, 1, 1), 0.5f) // Scale down to normal size
+                .setFrom(new Vector3(1.5f, 1.5f, 1.5f)) // Start from a larger size
+                .setEase(LeanTweenType.easeOutBack) // Use an ease out to make the zoom out smooth
+                .setOnComplete(() => {
+                    isShowingCongratulations = false; // Reset the flag when animation completes
+                });*/
+        }
+        Debug.Log(isShowingCongratulations);
+    }
+
+
 
     IEnumerator ResetPieceAfterDelay(GameObject piece, int index, float delay)
     {

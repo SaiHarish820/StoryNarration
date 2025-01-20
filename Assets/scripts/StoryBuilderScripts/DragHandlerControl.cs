@@ -1,17 +1,30 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections; // Required for Coroutine
 
 public class DragHandlerControl : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     private DragHandler dragHandler;
-    private float pressTimeThreshold = 0.2f; // Threshold for long press detection
+    private float pressTimeThreshold = 0.2f;
     private float pressTimer;
     private bool isPressing;
-    private bool canForceEnableDragHandler; // Flag to manage drag handler state
+    private bool canForceEnableDragHandler;
+
+    [SerializeField] private Transform originalParent;
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
+    private Vector2 originalSizeDelta;
+
+    private RectTransform rectTransform;
 
     private readonly string[] validParentNames = { "1S", "2S", "3S", "4S", "5S", "6S", "7S", "8S" };
 
-    private Vector3 originalScale; // To store the original scale of the GameObject
+    private Vector3 originalScale;
+
+
+    [Header("Audio Settings")]
+    [SerializeField] private AudioSource audioSource; // Reference to the AudioSource component
+    [SerializeField] private AudioClip revertClip; // Sound when reverted to the original position
 
     void Awake()
     {
@@ -21,7 +34,23 @@ public class DragHandlerControl : MonoBehaviour, IPointerDownHandler, IPointerUp
             Debug.LogError($"DragHandler component not found on {gameObject.name}");
         }
 
-        originalScale = transform.localScale; // Store the original scale
+        originalScale = transform.localScale;
+
+        rectTransform = GetComponent<RectTransform>();
+        if (rectTransform == null)
+        {
+            Debug.LogError("RectTransform component is required for this script.");
+        }
+
+        originalPosition = transform.localPosition;
+        originalRotation = transform.localRotation;
+        originalSizeDelta = rectTransform.sizeDelta;
+
+        // Validate AudioSource setup
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
     }
 
     void Update()
@@ -32,14 +61,14 @@ public class DragHandlerControl : MonoBehaviour, IPointerDownHandler, IPointerUp
         {
             if (dragHandler.enabled)
             {
-                Debug.Log("Disabling DragHandler as object is under a valid parent.");
                 dragHandler.enabled = false;
+                Debug.Log("Disabling DragHandler as the object is under a valid parent.");
             }
         }
         else if (!isChildOfSpecificParent && !dragHandler.enabled)
         {
-            Debug.Log("Enabling DragHandler as object is not under a valid parent.");
             dragHandler.enabled = true;
+            Debug.Log("Enabling DragHandler as the object is not under a valid parent.");
         }
 
         if (isPressing)
@@ -48,9 +77,13 @@ public class DragHandlerControl : MonoBehaviour, IPointerDownHandler, IPointerUp
             if (pressTimer >= pressTimeThreshold)
             {
                 Debug.Log("Long press detected. Enabling DragHandler and enlarging GameObject.");
+
                 canForceEnableDragHandler = true;
                 dragHandler.enabled = true;
-                transform.localScale = originalScale * 1.2f; // Enlarge by 20%
+                transform.localScale = originalScale * 1.2f;
+
+                // Call the coroutine to re-parent and restore position/size after .5 second
+                StartCoroutine(DelayedReparentAndRestore());
                 isPressing = false;
             }
         }
@@ -69,8 +102,8 @@ public class DragHandlerControl : MonoBehaviour, IPointerDownHandler, IPointerUp
     public void OnPointerUp(PointerEventData eventData)
     {
         isPressing = false;
-        pressTimer = 0; // Reset timer
-        transform.localScale = originalScale; // Reset to original scale
+        pressTimer = 0;
+        transform.localScale = originalScale;
         Debug.Log("Stopped pressing. Resetting scale.");
     }
 
@@ -104,4 +137,38 @@ public class DragHandlerControl : MonoBehaviour, IPointerDownHandler, IPointerUp
             dragHandler.enabled = true;
         }
     }
+
+    /// <summary>
+    /// Coroutine to delay re-parenting and restoring the original state.
+    /// </summary>
+    private IEnumerator DelayedReparentAndRestore()
+    {
+        yield return new WaitForSeconds(.5f); // Wait for .5 second
+
+        // Ensure the object is re-parented to its original parent
+        if (originalParent != null)
+        {
+            transform.SetParent(originalParent);
+        }
+
+        // Restore position and size
+        transform.localPosition = originalPosition;
+        rectTransform.sizeDelta = originalSizeDelta;
+
+        PlaySound(revertClip);
+
+        Debug.Log("Re-parented and restored position/size after 1-second delay.");
+    }
+
+    /// <summary>
+    /// Plays a sound effect using the AudioSource.
+    /// </summary>
+    /// <param name="clip">The audio clip to play.</param>
+    private void PlaySound(AudioClip clip)
+    {
+        if (clip == null || audioSource == null) return; // Don't play if clip or AudioSource is missing
+        audioSource.PlayOneShot(clip);
+    }
 }
+
+

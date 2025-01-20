@@ -11,7 +11,7 @@ TagManager:
   - Interactable
   - Water
   - UI
-  - 
+  - SlotText
   - 
   - 
   - 
@@ -49,4 +49,7 @@ TagManager:
     locked: 0
   - name: ContentsSot
     uniqueID: 1369963187
+    locked: 0
+  - name: SlotText
+    uniqueID: 699833119
     locked: 0
