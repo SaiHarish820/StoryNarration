@@ -5,13 +5,16 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/HomePage.unity
     guid: 89c9bde63fefbbb4884aa97597d1c20f
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Level Page.unity
     guid: 958367a4a0960eb47a51659082d275b1
   - enabled: 1
     path: Assets/Scenes/StoryBulider.unity
     guid: f2882cf14cd247b4ea55b8e9b407ce69
+  - enabled: 1
+    path: Assets/Scenes/Miracle Finder.unity
+    guid: 126f15bff17028d489284e78eda36850
   m_configObjects: {}
