@@ -719,7 +719,7 @@ MonoBehaviour:
   parentAfterDrag: {fileID: 0}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
-  snapDistance: 50
+  snapDistance: 120
   dragEnabled: 1
   audioSource: {fileID: 1713615558}
   snapClip: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
@@ -1136,7 +1136,7 @@ MonoBehaviour:
   parentAfterDrag: {fileID: 0}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
-  snapDistance: 50
+  snapDistance: 120
   dragEnabled: 1
   audioSource: {fileID: 1713615558}
   snapClip: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
@@ -1307,7 +1307,7 @@ MonoBehaviour:
   parentAfterDrag: {fileID: 0}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
-  snapDistance: 50
+  snapDistance: 120
   dragEnabled: 1
   audioSource: {fileID: 1713615558}
   snapClip: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
@@ -2305,7 +2305,7 @@ MonoBehaviour:
   parentAfterDrag: {fileID: 0}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
-  snapDistance: 50
+  snapDistance: 120
   dragEnabled: 1
   audioSource: {fileID: 1713615558}
   snapClip: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
@@ -2476,7 +2476,7 @@ MonoBehaviour:
   parentAfterDrag: {fileID: 0}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
-  snapDistance: 50
+  snapDistance: 120
   dragEnabled: 1
   audioSource: {fileID: 1713615558}
   snapClip: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
@@ -2924,7 +2924,7 @@ MonoBehaviour:
   parentAfterDrag: {fileID: 0}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
-  snapDistance: 50
+  snapDistance: 120
   dragEnabled: 1
   audioSource: {fileID: 1713615558}
   snapClip: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
@@ -3107,7 +3107,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 178.80328, y: -0.18344}
+  m_AnchoredPosition: {x: 360.95, y: 0.18573}
   m_SizeDelta: {x: 0, y: 257.92}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1232268541
@@ -3488,7 +3488,7 @@ MonoBehaviour:
   parentAfterDrag: {fileID: 0}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
-  snapDistance: 50
+  snapDistance: 120
   dragEnabled: 1
   audioSource: {fileID: 1713615558}
   snapClip: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
@@ -4908,7 +4908,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cf1462bc694c3c249831ad8ac5293aa2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f755e6c2729543b49a309203671adc54, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5092,7 +5092,7 @@ MonoBehaviour:
   parentAfterDrag: {fileID: 0}
   originalParent: {fileID: 2047909884}
   canvas: {fileID: 1884341683}
-  snapDistance: 50
+  snapDistance: 120
   dragEnabled: 1
   audioSource: {fileID: 1713615558}
   snapClip: {fileID: 8300000, guid: ffb159a21c8a04135a5616979c828fab, type: 3}
