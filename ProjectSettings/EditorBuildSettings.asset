@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Miracle Finder.unity
     guid: 126f15bff17028d489284e78eda36850
+  - enabled: 1
+    path: Assets/Scenes/Episodes/EP-1.unity
+    guid: 60ec0894549455f43af6ce8c852b6d71
   m_configObjects: {}

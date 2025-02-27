@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Video;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class VideoController : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class VideoController : MonoBehaviour
     public Sprite pauseSprite;
     public Slider seekBar;
     public Image clickableImage; // Image with collider to show/hide UI
+    public Image seekBarHandleImage; // Image representing seek bar handle
 
     [SerializeField] private bool isDragging = false;
     private float uiVisibleTimer = 0f;
@@ -40,6 +42,10 @@ public class VideoController : MonoBehaviour
 
     void Update()
     {
+        // Check if seek bar handle is being pressed
+        isDragging = Input.GetMouseButton(0) && RectTransformUtility.RectangleContainsScreenPoint(
+            seekBarHandleImage.rectTransform, Input.mousePosition, null);
+
         // Update seek bar if not dragging
         if (!isDragging && videoPlayer.length > 0)
         {
@@ -107,23 +113,10 @@ public class VideoController : MonoBehaviour
         }
     }
 
-    public void OnPointerDown()
-    {
-        isDragging = true;
-        videoPlayer.Pause();
-    }
-
-    public void OnPointerUp()
-    {
-        isDragging = false;
-        videoPlayer.time = seekBar.value * videoPlayer.length;
-        videoPlayer.Play();
-        UpdateButtonSprite();
-    }
-
     void OnVideoEnd(VideoPlayer vp)
     {
         seekBar.value = 0;
         UpdateButtonSprite();
+        SceneManager.LoadScene("Level Page");
     }
 }

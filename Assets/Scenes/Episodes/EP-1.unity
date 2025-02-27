@@ -210,7 +210,7 @@ GameObject:
   - component: {fileID: 97052039}
   - component: {fileID: 97052042}
   m_Layer: 5
-  m_Name: Image
+  m_Name: InteractiveImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -270,7 +270,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.25808716, y: 0.0025024414}
+  m_AnchoredPosition: {x: -0.25802612, y: 0.0025024414}
   m_SizeDelta: {x: -1, y: 0.51000977}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &97052042
@@ -881,7 +881,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.0025024414, y: 0.0025024414}
+  m_AnchoredPosition: {x: 0.0024414062, y: 0.0025024414}
   m_SizeDelta: {x: -0.5, y: 0.51000977}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!328 &580303547
@@ -1194,8 +1194,8 @@ MonoBehaviour:
   playSprite: {fileID: 21300000, guid: 6bb92db56863a49bf9fc5e992e334d82, type: 3}
   pauseSprite: {fileID: 21300000, guid: f06723030ef874765a5e4ed1908b0a3e, type: 3}
   seekBar: {fileID: 1385757703}
-  controlsPanel: {fileID: 203693051}
   clickableImage: {fileID: 97052039}
+  seekBarHandleImage: {fileID: 280092410}
   isDragging: 0
 --- !u!4 &1246959706
 Transform:

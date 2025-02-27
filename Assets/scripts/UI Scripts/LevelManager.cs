@@ -13,6 +13,8 @@ public class LevelManager : MonoBehaviour
         public Button previousButton; // Button to navigate to the previous level
         public Button gameButton; // Button to start the game
         public string sceneName; // Scene to load when this game button is pressed
+        public Button storyButton; // Button to start the story
+        public string episodeName; // Scene to load when this episode button is pressed
     }
 
     public LevelData[] levels; // Array to hold all levels
@@ -126,8 +128,16 @@ public class LevelManager : MonoBehaviour
                 });
             }
 
+            if (levels[i].previousButton != null)
+            {
+                levels[i].previousButton.onClick.AddListener(() =>
+                {
+                    PlaySFX(navigateSFX);
+                    NavigateToPreviousLevel(levelIndex);
+                });
+            }
 
-            // Configure the game button to load the scene
+            // Configure the game button to load the game scene
             if (levels[i].gameButton != null)
             {
                 levels[i].gameButton.onClick.AddListener(() =>
@@ -137,16 +147,18 @@ public class LevelManager : MonoBehaviour
                 });
             }
 
-            if (levels[i].previousButton != null)
+            // Configure the story button to load the episode scene
+            if (levels[i].storyButton != null)
             {
-                levels[i].previousButton.onClick.AddListener(() =>
+                levels[i].storyButton.onClick.AddListener(() =>
                 {
-                    PlaySFX(navigateSFX);
-                    NavigateToPreviousLevel(levelIndex);
+                    PlaySFX(buttonClickSFX);
+                    LoadScene(levels[levelIndex].episodeName);
                 });
             }
         }
     }
+
 
     private void InitializeGlobalButtons()
     {
