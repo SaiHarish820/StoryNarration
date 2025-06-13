@@ -1,0 +1,4 @@
+repository "StoryNarration/Bible Stories@13469382162607@cloud"
+  path "/"
+    br "/main"
+    co "/main"

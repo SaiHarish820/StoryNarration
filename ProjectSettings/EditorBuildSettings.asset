@@ -12,12 +12,45 @@ EditorBuildSettings:
     path: Assets/Scenes/Level Page.unity
     guid: 958367a4a0960eb47a51659082d275b1
   - enabled: 1
-    path: Assets/Scenes/StoryBulider.unity
+    path: Assets/Scenes/Level_1.unity
     guid: f2882cf14cd247b4ea55b8e9b407ce69
   - enabled: 1
-    path: Assets/Scenes/Miracle Finder.unity
+    path: Assets/Scenes/Level_2.unity
     guid: 126f15bff17028d489284e78eda36850
+  - enabled: 1
+    path: Assets/Scenes/Level_3.unity
+    guid: 31eabe1550e33674ea1b5e1b1ecba4b2
+  - enabled: 1
+    path: Assets/Scenes/Level_4.unity
+    guid: a0ecee7d0356682458fb4c5788fa0bae
+  - enabled: 1
+    path: Assets/Scenes/Level_5.unity
+    guid: 961ae07a34474b845b0b489ee2a44adf
+  - enabled: 1
+    path: Assets/Scenes/Level_6.unity
+    guid: 63a53d467121029449de9a4e0a6a63bf
+  - enabled: 1
+    path: Assets/Scenes/Level_7.unity
+    guid: 4008fad995c5d824c955b29052f71dda
   - enabled: 1
     path: Assets/Scenes/Episodes/EP-1.unity
     guid: 60ec0894549455f43af6ce8c852b6d71
+  - enabled: 1
+    path: Assets/Scenes/Episodes/EP-2.unity
+    guid: 6c08b6bcad59be440a73f6ca8466d0f8
+  - enabled: 1
+    path: Assets/Scenes/Episodes/EP-3.unity
+    guid: 4fdaaee1fc3e62a4ba25899c13261899
+  - enabled: 1
+    path: Assets/Scenes/Episodes/EP-4.unity
+    guid: b85728bd705d7fd42b5b50697351b034
+  - enabled: 1
+    path: Assets/Scenes/Episodes/EP-5.unity
+    guid: 6a09ebedbf2b01f42b7baf45bb121364
+  - enabled: 1
+    path: Assets/Scenes/Episodes/EP-6.unity
+    guid: e45fe7e89daf4c74e8410bad18633f64
+  - enabled: 1
+    path: Assets/Scenes/Episodes/EP-7.unity
+    guid: 99cc0151d911d3741bb715363c2d0eec
   m_configObjects: {}

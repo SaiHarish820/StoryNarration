@@ -3,22 +3,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 
 public class LevelManager_Miracle : MonoBehaviour
 {
     public static LevelManager_Miracle instance;
 
-    [SerializeField] private float timeLimit = 0;                       //Total time for single game player gets
-    [SerializeField] private int maxHiddenObjectToFound = 0;            //maximum hidden objects available in the scene
-    [SerializeField] private ObjectHolder objectHolderPrefab;           //ObjectHolderPrefab contains list of all the hiddenObjects available in it
+    [SerializeField] private float timeLimit = 0;
+    [SerializeField] private int maxHiddenObjectToFound = 0;
+    [SerializeField] private ObjectHolder objectHolderPrefab;
 
-    [HideInInspector] public GameStatus gameStatus = GameStatus.NEXT;   //enum to keep track of game status
-    private List<HiddenObjectData> activeHiddenObjectList;              //list hidden objects which are marked as hidden from the above list
-    private float currentTime;                                          //float to keep track of time remaining
-    private int totalHiddenObjectsFound = 0;                            //int to keep track of hidden objects found
-    private TimeSpan time;                                              //variable to help convert currentTime into time format
+    [HideInInspector] public GameStatus gameStatus = GameStatus.NEXT;
+    private List<HiddenObjectData> activeHiddenObjectList;
+    private float currentTime;
+    private int totalHiddenObjectsFound = 0;
+    private TimeSpan time;
     private RaycastHit2D hit;
-    private Vector3 pos;                                                //hold Mouse Tap position converted to WorldPoint
+    private Vector3 pos;
+
+    private int starsEarned = 0;  // Stores the number of stars earned
+    private string levelKey; // Unique key for saving progress
+
+
+    [SerializeField] private AudioClip gameOverSound;
+    [SerializeField] private AudioClip gameWinSound;
+    [SerializeField] private ParticleSystem gameOverParticles;
+    [SerializeField] private ParticleSystem gameWinParticles;
+
+    [SerializeField] private Transform gameOverParticlePosition;
+    [SerializeField] private Transform gameWinParticlePosition;
+
+    [SerializeField] private AudioSource backgroundMusic;
+    [SerializeField] private AudioClip popSound;
+
+    [SerializeField][Range(0f, 1f)] private float loweredVolumeOnPopup = 0.2f;
+
+
+
+    private AudioSource audioSource;
+
 
     private void Awake()
     {
@@ -29,115 +52,199 @@ public class LevelManager_Miracle : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
-        
     }
 
     void Start()
     {
-        activeHiddenObjectList = new List<HiddenObjectData>();          //we initialize the list
+        levelKey = "Level" + SceneManager.GetActiveScene().buildIndex + "_Stars";
+        Debug.Log("Level Key: " + levelKey);
+
+        audioSource = GetComponent<AudioSource>(); // Add AudioSource to the same GameObject
+        activeHiddenObjectList = new List<HiddenObjectData>();
         AssignHiddenObjects();
-        
     }
 
-    void AssignHiddenObjects()  //Method select objects from the hiddenobjects list which should be hidden
+    void AssignHiddenObjects()
     {
         ObjectHolder objectHolder = Instantiate(objectHolderPrefab, Vector3.zero, Quaternion.identity);
-        totalHiddenObjectsFound = 0;                                        //set it to 0 by default
-        activeHiddenObjectList.Clear();                                     //clear the list by default
-        gameStatus = GameStatus.PLAYING;                                    //set game status to playing
-        UIManager.instance.TimerText.text = "" + timeLimit;                 //set the timer text of UIManager
-        currentTime = timeLimit;                                            //set the currentTime to timeLimit
+        totalHiddenObjectsFound = 0;
+        activeHiddenObjectList.Clear();
+        gameStatus = GameStatus.PLAYING;
+        UIManager.instance.TimerText.text = "" + timeLimit;
+        currentTime = timeLimit;
 
-        for (int i = 0; i < objectHolder.HiddenObjectList.Count; i++)       //loop through all the hiddenObjects in the hiddenObjectList
+        for (int i = 0; i < objectHolder.HiddenObjectList.Count; i++)
         {
-            //deacivate collider, as we only want selected hidden objects to have collider active
             objectHolder.HiddenObjectList[i].hiddenObj.GetComponent<Collider2D>().enabled = false;
         }
 
-        int k = 0; //int to keep count
-        while (k < maxHiddenObjectToFound) //we check while k is less that maxHiddenObjectToFound, keep looping
+        int k = 0;
+        while (k < maxHiddenObjectToFound)
         {
-            //we randomly select any number between 0 to hiddenObjectList.Count
             int randomNo = UnityEngine.Random.Range(0, objectHolder.HiddenObjectList.Count);
-            //then we check is the makeHidden bool of that hiddenObject is false
             if (!objectHolder.HiddenObjectList[randomNo].makeHidden)
             {
-                //we are setting the object name similar to index, because we are going to use index to identify the tapped object
-                //and this index will help us to deactive the hidden object icon from the UI
-                objectHolder.HiddenObjectList[randomNo].hiddenObj.name = "" + k;    //set their name to index
-
-                objectHolder.HiddenObjectList[randomNo].makeHidden = true;          //if false, then we set it to true
-                                                                                    //activate its collider, so we can detect it on tap
+                objectHolder.HiddenObjectList[randomNo].hiddenObj.name = "" + k;
+                objectHolder.HiddenObjectList[randomNo].makeHidden = true;
                 objectHolder.HiddenObjectList[randomNo].hiddenObj.GetComponent<Collider2D>().enabled = true;
-                activeHiddenObjectList.Add(objectHolder.HiddenObjectList[randomNo]);//add the hidden object to the activeHiddenObjectList
-                k++;                                                                //and increase the k
+                activeHiddenObjectList.Add(objectHolder.HiddenObjectList[randomNo]);
+                k++;
             }
         }
 
-        UIManager.instance.PopulateHiddenObjectIcons(activeHiddenObjectList);   //send the activeHiddenObjectList to UIManager
-        gameStatus = GameStatus.PLAYING;                                        //set gamestatus to Playing
+        UIManager.instance.PopulateHiddenObjectIcons(activeHiddenObjectList);
+        gameStatus = GameStatus.PLAYING;
     }
 
     private void Update()
     {
-        if (gameStatus == GameStatus.PLAYING)                               //check if gamestatus is Playing
+        if (gameStatus == GameStatus.PLAYING)
         {
-            if (Input.GetMouseButtonDown(0))                                //check for left mouse tap
+            if (Input.GetMouseButtonDown(0))
             {
-                Debug.Log("Mouse Clicked");
-                pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);  //get the position of mouse tap and conver it to WorldPoint
-                Debug.Log(pos); 
-                hit = Physics2D.Raycast(pos, Vector2.zero);                 //create a Raycast hit from mouse tap position
-                if (hit && hit.collider != null)                            //check if hit and collider is not null
-                {
-                    Debug.Log("Hit Raycast Clicked");
-                    hit.collider.gameObject.SetActive(false);               //deactivate the hit object
-                    //Remember we renamed all our object to their respective Index, we did it for UIManager
-                    UIManager.instance.CheckSelectedHiddenObject(hit.collider.gameObject.name); //send the name of hit object to UIManager
-
-                    for (int i = 0; i < activeHiddenObjectList.Count; i++)
-                    {
-                        if (activeHiddenObjectList[i].hiddenObj.name == hit.collider.gameObject.name)
-                        {
-                            activeHiddenObjectList.RemoveAt(i);
-                            break;
-                        }
-                    }
-
-                    totalHiddenObjectsFound++;                              //increase totalHiddenObjectsFound count
-
-                    //check if totalHiddenObjectsFound is more or equal to maxHiddenObjectToFound
-                    if (totalHiddenObjectsFound >= maxHiddenObjectToFound)
-                    {
-                        Debug.Log("You won the game");                      //if yes then we have won the game
-                        UIManager.instance.GameCompleteObj.SetActive(true); //activate GameComplete panel
-                        gameStatus = GameStatus.NEXT;                       //set gamestatus to Next
-                    }
-                }
+                HandleObjectClick();
             }
 
-            currentTime -= Time.deltaTime;  //as long as gamestatus i in playing, we keep reducing currentTime by Time.deltaTime
-
-            time = TimeSpan.FromSeconds(currentTime);                       //set the time value
+            currentTime -= Time.deltaTime;
+            time = TimeSpan.FromSeconds(currentTime);
             UIManager.instance.TimerText.text = time.ToString(@"mm\:ss");
-        
-            if (currentTime <= 0)                                           //if currentTime is less or equal to zero
+
+            if (currentTime <= 0)
             {
-                Debug.Log("Time Up");                                       //if yes then we have lost the game
-                UIManager.instance.GameCompleteObj.SetActive(true);         //activate GameComplete panel
-                gameStatus = GameStatus.NEXT;                               //set gamestatus to Next
+                HandleGameOver();
             }
         }
     }
 
-    public IEnumerator HintObject() //Method called by HintButton of UIManager
+    void HandleObjectClick()
     {
-        int randomValue = UnityEngine.Random.Range(0, activeHiddenObjectList.Count);
-        Vector3 originalScale = activeHiddenObjectList[randomValue].hiddenObj.transform.localScale;
-        activeHiddenObjectList[randomValue].hiddenObj.transform.localScale = originalScale * 1.25f;
-        yield return new WaitForSeconds(0.25f);
-        activeHiddenObjectList[randomValue].hiddenObj.transform.localScale = originalScale;
+        pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        hit = Physics2D.Raycast(pos, Vector2.zero);
+        if (hit && hit.collider != null)
+        {
+            hit.collider.gameObject.SetActive(false);
+            UIManager.instance.CheckSelectedHiddenObject(hit.collider.gameObject.name);
+
+            for (int i = 0; i < activeHiddenObjectList.Count; i++)
+            {
+                if (activeHiddenObjectList[i].hiddenObj.name == hit.collider.gameObject.name)
+                {
+
+                    //  Play pop sound effect
+                    if (audioSource && popSound)
+                        audioSource.PlayOneShot(popSound);
+
+                    activeHiddenObjectList.RemoveAt(i);
+                    break;
+                }
+            }
+
+            totalHiddenObjectsFound++;
+
+            if (totalHiddenObjectsFound >= maxHiddenObjectToFound)
+            {
+                HandleGameWin();
+            }
+        }
+    }
+
+    void HandleGameOver()
+    {
+        if (gameStatus == GameStatus.NEXT) return;
+
+        Debug.Log("Time Up - Game Over!");
+        UIManager.instance.AnimatePopup(UIManager.instance.GameOverObj);
+        UIManager.instance.HideAllHiddenObjectIcons();
+
+        if (backgroundMusic)
+            backgroundMusic.volume = loweredVolumeOnPopup;
+
+        if (audioSource && gameOverSound)
+            audioSource.PlayOneShot(gameOverSound);
+
+        if (gameOverParticles && gameOverParticlePosition)
+            Instantiate(gameOverParticles, gameOverParticlePosition.position, Quaternion.identity);
+
+        gameStatus = GameStatus.NEXT;
+        starsEarned = 0;
+    }
+
+
+    void HandleGameWin()
+    {
+        if (gameStatus == GameStatus.NEXT) return;
+
+        Debug.Log("You won the game!");
+        UIManager.instance.AnimatePopup(UIManager.instance.GameCompleteObj);
+
+        if (backgroundMusic)
+            backgroundMusic.volume = loweredVolumeOnPopup;
+
+        if (audioSource && gameWinSound)
+            audioSource.PlayOneShot(gameWinSound);
+
+        if (gameWinParticles && gameWinParticlePosition)
+            Instantiate(gameWinParticles, gameWinParticlePosition.position, Quaternion.identity);
+
+        CalculateStars();
+        gameStatus = GameStatus.NEXT;
+    }
+
+    
+
+
+
+    public void NextButton()
+    {
+        if (LevelManager_Miracle.instance.backgroundMusic)
+            LevelManager_Miracle.instance.backgroundMusic.volume = 1f;
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+
+
+    void CalculateStars()
+    {
+        float timeRemainingPercentage = currentTime / timeLimit;
+
+        if (timeRemainingPercentage > 0.66f)
+        {
+            starsEarned = 3;
+        }
+        else if (timeRemainingPercentage > 0.33f)
+        {
+            starsEarned = 2;
+        }
+        else
+        {
+            starsEarned = 1;
+        }
+
+        Debug.Log("Stars Earned: " + starsEarned);
+        //UIManager.instance.UpdateStarDisplay(starsEarned); 
+
+        // Save highest star count
+        int savedStars = PlayerPrefs.GetInt(levelKey, 0);
+        if (starsEarned > savedStars)
+        {
+            PlayerPrefs.SetInt(levelKey, starsEarned);
+            PlayerPrefs.Save();
+        }
+    }
+
+    public IEnumerator HintObject()
+    {
+        if (activeHiddenObjectList.Count > 0)
+        {
+            int randomValue = UnityEngine.Random.Range(0, activeHiddenObjectList.Count);
+            Vector3 originalScale = activeHiddenObjectList[randomValue].hiddenObj.transform.localScale;
+            activeHiddenObjectList[randomValue].hiddenObj.transform.localScale = originalScale * 1.25f;
+            yield return new WaitForSeconds(0.25f);
+            activeHiddenObjectList[randomValue].hiddenObj.transform.localScale = originalScale;
+        }
     }
 }
 

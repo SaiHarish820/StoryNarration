@@ -9,7 +9,7 @@ public class ButtonStateManager : MonoBehaviour
 
     public void HomepageStartButton()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene("Level Page");
     }
 
     public void HomePageQuitGame()

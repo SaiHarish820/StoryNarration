@@ -17,7 +17,7 @@ public class DragHandlerControl : MonoBehaviour, IPointerDownHandler, IPointerUp
 
     private RectTransform rectTransform;
 
-    private readonly string[] validParentNames = { "1S", "2S", "3S", "4S", "5S", "6S", "7S", "8S" };
+    private readonly string[] validParentNames = { "1S", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S" };
 
     private Vector3 originalScale;
 

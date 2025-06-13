@@ -11,11 +11,17 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject hiddenObjectIconHolder;     //reference to Icon Holder object
     [SerializeField] private GameObject hiddenObjectIconPrefab;     //reference to Icon prefab
     [SerializeField] private GameObject gameCompleteObj;            //reference to GameComplete panel
+    [SerializeField] private GameObject gameOverObj;                // Reference to GameOver panel
     [SerializeField] private TextMeshProUGUI timerText;                 //reference to time text
 
     private List<GameObject> hiddenObjectIconList;                  //list to store Icons of active hidden objects
 
     public GameObject GameCompleteObj { get => gameCompleteObj; }   //getter
+
+
+    public GameObject GameOverObj { get => gameOverObj; }           // Getter for GameOver panel
+
+
     public TextMeshProUGUI TimerText { get => timerText; }              //getter
 
     private void Awake()
@@ -79,4 +85,20 @@ public class UIManager : MonoBehaviour
         //TODO: Using Coroutine is not recommended, try using TweenEngine. Eg:- DOtween, iTween
         StartCoroutine(LevelManager_Miracle.instance.HintObject());
     }
+
+    public void HideAllHiddenObjectIcons()
+    {
+        foreach (GameObject icon in hiddenObjectIconList)
+        {
+            icon.SetActive(false);
+        }
+    }
+
+    public void AnimatePopup(GameObject popupObj)
+    {
+        popupObj.SetActive(true);
+        popupObj.transform.localScale = Vector3.zero;
+        LeanTween.scale(popupObj, Vector3.one, 0.5f).setEaseOutBack();
+    }
+
 }

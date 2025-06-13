@@ -18,11 +18,17 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public bool dragEnabled = true; // Flag to enable or disable drag functionality
 
+
+
+     private int numberofSlots = 9;
+
     // Audio variables
     [Header("Audio Settings")]
     [SerializeField] private AudioSource audioSource; // Reference to the AudioSource component
     [SerializeField] private AudioClip snapClip; // Sound when snapped into a valid slot
     [SerializeField] private AudioClip revertClip; // Sound when reverted to the original position
+
+    
 
     void Awake()
     {
@@ -57,7 +63,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         transform.SetParent(canvas.transform); // Move to top canvas layer
 
         // Play the drag start sound
- 
+
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -121,7 +127,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             PlaySound(revertClip);
         }
 
-      
+
     }
 
     DropSlot FindClosestDropSlot()
@@ -129,7 +135,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         float closestDistance = float.MaxValue;
         DropSlot closestSlot = null;
 
-        for (int i = 1; i <= 8; i++)
+        for (int i = 1; i <= numberofSlots; i++)
         {
             GameObject potentialSlotObject = GameObject.Find(i + "S");
             if (potentialSlotObject)
